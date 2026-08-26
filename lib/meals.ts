@@ -25,10 +25,16 @@ type MealInput = {
   creator_email: string;
 };
 
-const usePostgres = Boolean(process.env.POSTGRES_URL);
+const postgresUrl =
+  process.env.POSTGRES_URL ||
+  process.env.STORAGE_POSTGRES_URL ||
+  process.env.STORAGE_URL ||
+  '';
+
+const usePostgres = Boolean(postgresUrl);
 const dbPath = process.env.SQLITE_PATH || 'meals.db';
 const postgresClient = usePostgres
-  ? createPostgresClient(process.env.POSTGRES_URL as string, { ssl: 'require' })
+  ? createPostgresClient(postgresUrl, { ssl: 'require' })
   : null;
 
 let sqliteDb: any | null = null;
