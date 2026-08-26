@@ -4,8 +4,14 @@ import { v2 as cloudinary } from 'cloudinary';
 import fs from 'node:fs';
 import path from 'node:path';
 
+const isProduction = process.env.NODE_ENV === 'production';
+const hasCloudinaryConfig =
+  Boolean(process.env.CLOUDINARY_CLOUD_NAME) &&
+  Boolean(process.env.CLOUDINARY_API_KEY) &&
+  Boolean(process.env.CLOUDINARY_API_SECRET);
+
 // Configure Cloudinary (only in production)
-if (process.env.NODE_ENV === 'production' && process.env.CLOUDINARY_CLOUD_NAME) {
+if (isProduction && hasCloudinaryConfig) {
   cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
@@ -75,10 +81,12 @@ export async function uploadImage(
   filename: string,
   mimeType: string
 ): Promise<string> {
-  // Use Cloudinary only in production and if configured
-  const isProduction = process.env.NODE_ENV === 'production';
-  
-  if (isProduction && process.env.CLOUDINARY_CLOUD_NAME) {
+  // In production, require Cloudinary so uploads persist and do not rely on local FS.
+  if (isProduction) {
+    if (!hasCloudinaryConfig) {
+      throw new Error('Cloudinary is not configured in production environment.');
+    }
+
     return await uploadToCloudinary(buffer, filename, mimeType);
   }
   

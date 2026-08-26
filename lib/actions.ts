@@ -187,7 +187,17 @@ export async function shareMeal(prevState, formData) {
   if (hasGeneratedImage) {
     try {
       meal.imagePath = await persistGeneratedImage(generatedImagePath, meal.title);
-    } catch {
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        error.message === 'Cloudinary is not configured in production environment.'
+      ) {
+        return {
+          message:
+            'Image storage is not configured on the server. Add Cloudinary environment variables and redeploy.',
+        };
+      }
+
       return { message: 'Unable to save generated image. Please try uploading an image instead.' };
     }
   }
@@ -195,9 +205,13 @@ export async function shareMeal(prevState, formData) {
   try {
     await saveMeal(meal);
   } catch (error) {
-    const errorMessage = error.message === 'Failed to upload image to cloud storage.'
-      ? 'Unable to upload image. Please check your internet connection.'
-      : 'Unable to save meal. Please try again.';
+    const errorMessage =
+      error instanceof Error &&
+      error.message === 'Cloudinary is not configured in production environment.'
+        ? 'Image storage is not configured on the server. Add Cloudinary environment variables and redeploy.'
+        : error instanceof Error && error.message === 'Failed to upload image to cloud storage.'
+          ? 'Unable to upload image. Please check your internet connection.'
+          : 'Unable to save meal. Please try again.';
     return { message: errorMessage };
   }
 
