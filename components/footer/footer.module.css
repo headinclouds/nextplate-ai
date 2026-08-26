@@ -1,0 +1,62 @@
+.footer {
+  background: linear-gradient(90deg, #2c1e19, #25200f);
+  color: #ddd6cb;
+  margin-top: 4rem;
+  padding: 3rem 1rem 1rem;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid rgba(221, 214, 203, 0.2);
+}
+
+.section h3 {
+  color: #f9572a;
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.section h4 {
+  color: #f9572a;
+  font-size: 1.1rem;
+  margin-bottom: 0.75rem;
+}
+
+.section p {
+  line-height: 1.6;
+  color: #d9d6d0;
+}
+
+.section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.section li {
+  margin-bottom: 0.5rem;
+}
+
+.section a {
+  color: #ddd6cb;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.section a:hover {
+  color: #f9572a;
+}
+
+.bottom {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-top: 1.5rem;
+  text-align: center;
+  color: #a8a29e;
+  font-size: 0.9rem;
+}

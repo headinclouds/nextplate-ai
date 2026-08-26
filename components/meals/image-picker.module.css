@@ -1,0 +1,63 @@
+.picker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.picker label {
+  display: block;
+  margin-bottom: var(--spacing-sm);
+  font-weight: bold;
+  text-transform: uppercase;
+  color: #ede9e3;
+  font-size: 0.9rem;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.preview {
+  position: relative;
+  width: 10rem;
+  height: 10rem;
+  border: 2px solid #a4abb9;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #a4abb9;
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.controls button {
+  font: inherit;
+  cursor: pointer;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-md);
+  border: 1px solid #f98b6b;
+  background: transparent;
+  color: #f98b6b;
+  transition: all var(--transition-normal);
+}
+
+.controls button:hover,
+.controls button:active {
+  background: #f98b6b;
+  color: #1d1616;
+}
+
+.controls input {
+  display: none;
+}
+
