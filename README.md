@@ -107,11 +107,11 @@ http://localhost:3000
 ```
 foodies/
 ├── app/                      # Next.js App Router
-│   ├── layout.js            # Root layout with metadata
-│   ├── page.js              # Homepage
+│   ├── layout.tsx           # Root layout with metadata
+│   ├── page.tsx             # Homepage
 │   ├── globals.css          # Global styles & CSS variables
 │   ├── meals/               # Meals feature
-│   │   ├── page.js          # Meals list with pagination
+│   │   ├── page.tsx         # Meals list with pagination
 │   │   ├── [slug]/          # Dynamic meal detail pages
 │   │   └── share/           # Share meal form
 │   └── community/           # Community page
@@ -121,11 +121,11 @@ foodies/
 │   ├── footer/             # Site footer
 │   └── ui/                 # Reusable UI components
 ├── lib/                     # Server-side utilities
-│   ├── actions.js          # Server Actions (form handling)
-│   ├── meals.js            # Database operations
-│   ├── storage.js          # Cloud storage abstraction
-│   ├── rate-limit.js       # Rate limiting logic
-│   └── constants.js        # Configuration constants
+│   ├── actions.ts          # Server Actions (form handling)
+│   ├── meals.ts            # Database operations
+│   ├── storage.ts          # Cloud storage abstraction
+│   ├── rate-limit.ts       # Rate limiting logic
+│   └── constants.ts        # Configuration constants
 ├── public/                  # Static assets
 │   └── images/             # Local image storage (dev)
 └── initdb.js               # Database initialization script
@@ -246,14 +246,14 @@ Edit `app/globals.css`:
 ```
 
 ### Adjust Rate Limits
-Edit `lib/constants.js`:
+Edit `lib/constants.ts`:
 ```javascript
 export const RATE_LIMIT_MAX_REQUESTS = 15;
 export const RATE_LIMIT_WINDOW_MS = 3600000; // 1 hour
 ```
 
 ### Change Pagination Size
-Edit `lib/constants.js`:
+Edit `lib/constants.ts`:
 ```javascript
 export const DEFAULT_PAGE_SIZE = 12;
 ```
@@ -286,9 +286,8 @@ This project is open source and available under the [MIT License](LICENSE).
 ## 👨‍💻 Author
 
 **Your Name**
-- GitHub: [@yourusername](https://github.com/yourusername)
-- LinkedIn: [Your LinkedIn](https://linkedin.com/in/yourprofile)
-- Portfolio: [yourportfolio.com](https://yourportfolio.com)
+- GitHub: [@headinclouds](https://github.com/headinclouds)
+- LinkedIn: [olena-deordiieva](https://www.linkedin.com/in/olena-deordiieva/)
 
 ## 🙏 Acknowledgments
 
