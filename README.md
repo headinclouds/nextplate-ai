@@ -40,7 +40,8 @@ A modern, full-stack food sharing platform built with Next.js 14, featuring AI-p
 
 ### Backend
 - **Next.js Server Actions** - Type-safe server-side functions
-- **better-sqlite3** - Embedded SQL database
+- **Vercel Postgres** - Managed production database on Vercel
+- **better-sqlite3** - Local fallback database for development
 - **Cloudinary** - Cloud image storage and optimization
 
 ### AI & APIs
@@ -82,6 +83,8 @@ CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
 NODE_ENV=development
+# Optional for local Postgres workflow
+# POSTGRES_URL=postgres://...
 ```
 
 4. **Initialize the database**
@@ -187,23 +190,21 @@ git push -u origin main
 2. **Deploy to Vercel**
 - Visit [vercel.com](https://vercel.com)
 - Import your GitHub repository
+- Add Vercel Postgres integration in your Vercel project (Storage tab)
 - Add environment variables:
   ```
   CLOUDINARY_CLOUD_NAME
   CLOUDINARY_API_KEY
   CLOUDINARY_API_SECRET
   NODE_ENV=production
-  SQLITE_PATH=meals.db
+  POSTGRES_URL
   ```
 - Deploy!
 
 3. **Database Note**
-- SQLite works on Vercel but is read-only after deployment
-- For production with user uploads, consider:
-  - PostgreSQL (Vercel Postgres)
-  - MySQL (PlanetScale)
-  - MongoDB (MongoDB Atlas)
-- On platforms with persistent volumes (e.g., Railway), set `SQLITE_PATH` to the mounted path (for example `/data/meals.db`).
+- With Vercel Postgres enabled, meal creation and updates persist normally.
+- If `POSTGRES_URL` is not set, the app falls back to local SQLite (good for local dev only).
+- SQLite on Vercel itself is not suitable for persistent writes.
 
 ### Alternative Deployment Options
 - **Netlify**: Similar to Vercel
@@ -264,6 +265,8 @@ export const DEFAULT_PAGE_SIZE = 12;
 | `CLOUDINARY_CLOUD_NAME` | Your Cloudinary cloud name | Production only |
 | `CLOUDINARY_API_KEY` | Your Cloudinary API key | Production only |
 | `CLOUDINARY_API_SECRET` | Your Cloudinary API secret | Production only |
+| `POSTGRES_URL` | Vercel Postgres connection string | Required on Vercel for writable data |
+| `SQLITE_PATH` | Local SQLite path when no Postgres URL is set | Optional (local/dev) |
 | `NODE_ENV` | Environment (development/production) | Yes |
 
 ## 🤝 Contributing

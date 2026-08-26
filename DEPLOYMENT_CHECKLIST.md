@@ -43,10 +43,11 @@
   - Check image appears on Cloudinary dashboard
 
 ### 2. Database
-- [ ] **Delete test data from meals.db**
+- [ ] **Provision Vercel Postgres (Storage tab)**
+- [ ] **Set POSTGRES_URL in project environment variables**
+- [ ] **Seed sample data (optional)**
   ```bash
-  rm meals.db
-  node initdb.js
+  npm run db:init
   ```
 - [ ] **Add sample meals** (3-5 professional examples)
   - Use high-quality images
@@ -76,6 +77,7 @@
   CLOUDINARY_API_KEY=xxx
   CLOUDINARY_API_SECRET=xxx
   NODE_ENV=production
+  POSTGRES_URL=xxx
   ```
 
 ### 5. Testing in Production

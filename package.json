@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
+    "db:init": "node initdb.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage"
@@ -16,6 +17,7 @@
     "better-sqlite3": "^13.0.3",
     "cloudinary": "^2.10.1",
     "next": "^14.2.35",
+    "postgres": "^3.4.9",
     "react": "^18",
     "react-dom": "^18",
     "sharp": "^0.35.3",

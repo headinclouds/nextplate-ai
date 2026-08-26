@@ -61,13 +61,16 @@ npm start
    - Sign in with GitHub
    - Click "New Project"
    - Import your repository
+   - In Vercel project settings, add Storage -> Postgres (Neon)
    - Add environment variables:
      ```
      CLOUDINARY_CLOUD_NAME=your_cloud_name
      CLOUDINARY_API_KEY=your_api_key
      CLOUDINARY_API_SECRET=your_api_secret
      NODE_ENV=production
+     POSTGRES_URL=provided-by-vercel-storage
      ```
+   - (Optional) Seed sample meals with `npm run db:init`
    - Click "Deploy"
 
 3. **Wait for deployment** (~2 minutes)
