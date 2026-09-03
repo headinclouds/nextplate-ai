@@ -89,7 +89,6 @@
 .instructions {
   font-size: 1.25rem;
   line-height: 1.5;
-  white-space: pre-wrap;
   background-color: #6e6464;
   color: #13120f;
   border-radius: 8px;
@@ -98,6 +97,18 @@
   max-width: 60rem;
   margin: 2rem auto;
   animation: fade-slide-in-from-bottom 1s ease-out forwards;
+}
+
+.instructions > :first-child {
+  margin-top: 0;
+}
+
+.instructions > :last-child {
+  margin-bottom: 0;
+}
+
+.instructions li + li {
+  margin-top: 0.5rem;
 }
 
 .loading {

@@ -7,7 +7,7 @@ import ShareMealForm from './share-meal-form';
 const mockShareFormAction = jest.fn();
 const mockImageFormAction = jest.fn();
 
-jest.mock('@/lib/actions', () => ({
+jest.mock('@/app/actions/meals', () => ({
   shareMeal: jest.fn(),
   generateMealImage: jest.fn(),
 }));
@@ -19,7 +19,12 @@ jest.mock('@/components/ui/loading-overlay', () => ({
 
 jest.mock('@/components/meals/image-picker', () => ({
   __esModule: true,
-  default: ({ label, name, required, onImagePick }: {
+  default: ({
+    label,
+    name,
+    required,
+    onImagePick,
+  }: {
     label: string;
     name: string;
     required?: boolean;
@@ -77,10 +82,7 @@ describe('ShareMealForm', () => {
     consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation((...args: unknown[]) => {
       const firstArg = args[0];
 
-      if (
-        typeof firstArg === 'string' &&
-        firstArg.includes('Invalid value for prop')
-      ) {
+      if (typeof firstArg === 'string' && firstArg.includes('Invalid value for prop')) {
         return;
       }
 
@@ -113,7 +115,7 @@ describe('ShareMealForm', () => {
     submitFormWithButton('Generate with AI');
 
     expect(
-      screen.getByText('Please fill in title and summary before generating an image.')
+      screen.getByText('Please fill in title and summary before generating an image.'),
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Generate with AI' })).toBeInTheDocument();
   });
@@ -134,17 +136,13 @@ describe('ShareMealForm', () => {
     const user = userEvent.setup();
     render(<ShareMealForm />);
 
-    await user.type(screen.getByLabelText('Your name'), 'Olena');
-    await user.type(screen.getByLabelText('Your email'), 'olena@example.com');
     await user.type(screen.getByLabelText('Title'), 'Salad');
     await user.type(screen.getByLabelText('Short Summary'), 'Fresh and green');
     await user.type(screen.getByLabelText('Instructions'), 'Mix all ingredients.');
 
     submitFormWithButton('Share Meal');
 
-    expect(
-      screen.getByText('Please pick an image or generate one with AI.')
-    ).toBeInTheDocument();
+    expect(screen.getByText('Please pick an image or generate one with AI.')).toBeInTheDocument();
     expect(mockShareFormAction).not.toHaveBeenCalled();
   });
 
@@ -152,8 +150,6 @@ describe('ShareMealForm', () => {
     const user = userEvent.setup();
     render(<ShareMealForm />);
 
-    await user.type(screen.getByLabelText('Your name'), 'Olena');
-    await user.type(screen.getByLabelText('Your email'), 'olena@example.com');
     await user.type(screen.getByLabelText('Title'), 'Soup');
     await user.type(screen.getByLabelText('Short Summary'), 'Warm and cozy');
     await user.type(screen.getByLabelText('Instructions'), 'Boil and serve.');

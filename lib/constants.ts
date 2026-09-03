@@ -40,5 +40,6 @@ export const ERROR_MESSAGES = {
   RATE_LIMIT_EXCEEDED: 'Too many requests. Please try again later.',
   UPLOAD_FAILED: 'Unable to upload image. Please check your internet connection.',
   SAVE_FAILED: 'Unable to save meal. Please try again.',
-  GENERATION_FAILED: 'Unable to generate image. Please check your internet connection and try again.',
+  GENERATION_FAILED:
+    'Unable to generate image. Please check your internet connection and try again.',
 };

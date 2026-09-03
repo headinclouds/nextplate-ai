@@ -7,7 +7,7 @@ import classes from './main-header.module.css';
 
 export function MainHeaderNavLink({ href, children }) {
   const pathname = usePathname();
-  
+
   // Exact match
   if (pathname === href) {
     return (
@@ -18,7 +18,7 @@ export function MainHeaderNavLink({ href, children }) {
       </li>
     );
   }
-  
+
   // For parent routes, check if we're on a child route
   // Special case: /meals should NOT be active when on /meals/share
   let isActive = false;

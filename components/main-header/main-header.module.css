@@ -48,6 +48,21 @@
   text-shadow: 0 0 10px rgba(255, 209, 106, 0.55);
 }
 
+.navButton {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #ffe0cc;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.navButton:hover,
+.navButton:focus {
+  color: #ffd16a;
+}
+
 @media (max-width: 760px) {
   .header {
     flex-direction: column;

@@ -26,19 +26,13 @@ type MealInput = {
 };
 
 const postgresUrl =
-  process.env.POSTGRES_URL ||
-  process.env.STORAGE_POSTGRES_URL ||
-  process.env.STORAGE_URL ||
-  '';
+  process.env.POSTGRES_URL || process.env.STORAGE_POSTGRES_URL || process.env.STORAGE_URL || '';
 
 const usePostgres = Boolean(postgresUrl);
 const dbPath = process.env.SQLITE_PATH || 'meals.db';
-const postgresClient = usePostgres
-  ? createPostgresClient(postgresUrl, { ssl: 'require' })
-  : null;
+const postgresClient = usePostgres ? createPostgresClient(postgresUrl, { ssl: 'require' }) : null;
 
 let sqliteDb: any | null = null;
-let postgresSchemaPromise: Promise<void> | null = null;
 
 function getSqliteDb() {
   if (!sqliteDb) {
@@ -49,46 +43,11 @@ function getSqliteDb() {
   return sqliteDb;
 }
 
-async function ensurePostgresSchema() {
-  if (!usePostgres) {
-    return;
-  }
-
-  if (!postgresSchemaPromise) {
-    postgresSchemaPromise = (async () => {
-      await postgresClient!`
-        CREATE TABLE IF NOT EXISTS meals (
-          id SERIAL PRIMARY KEY,
-          slug TEXT NOT NULL UNIQUE,
-          title TEXT NOT NULL,
-          image TEXT NOT NULL,
-          summary TEXT NOT NULL,
-          instructions TEXT NOT NULL,
-          creator TEXT NOT NULL,
-          creator_email TEXT NOT NULL
-        )
-      `;
-
-      await postgresClient!`
-        CREATE INDEX IF NOT EXISTS idx_meals_slug ON meals(slug)
-      `;
-
-      await postgresClient!`
-        CREATE INDEX IF NOT EXISTS idx_meals_creator_email ON meals(creator_email)
-      `;
-    })();
-  }
-
-  await postgresSchemaPromise;
-}
-
 export async function getMeals(page = 1, pageSize = 12) {
   try {
     const offset = (page - 1) * pageSize;
 
     if (usePostgres) {
-      await ensurePostgresSchema();
-
       const mealsResult = await postgresClient!`
         SELECT * FROM meals
         ORDER BY id DESC
@@ -120,7 +79,7 @@ export async function getMeals(page = 1, pageSize = 12) {
 
     const totalResult = db.prepare('SELECT COUNT(*) as count FROM meals').get();
     const total = Number(totalResult.count || 0);
-    
+
     return {
       meals,
       pagination: {
@@ -138,8 +97,6 @@ export async function getMeals(page = 1, pageSize = 12) {
 export async function getMeal(slug) {
   try {
     if (usePostgres) {
-      await ensurePostgresSchema();
-
       const result = await postgresClient!`
         SELECT * FROM meals WHERE slug = ${slug} LIMIT 1
       `;
@@ -153,7 +110,6 @@ export async function getMeal(slug) {
     throw new Error('Failed to fetch meal details.');
   }
 }
-
 
 export async function saveMeal(meal: MealInput) {
   // Sanitize all user inputs to prevent XSS and ensure they're strings
@@ -169,8 +125,6 @@ export async function saveMeal(meal: MealInput) {
   let counter = 1;
 
   if (usePostgres) {
-    await ensurePostgresSchema();
-
     while (true) {
       const existing = await postgresClient!`
         SELECT slug FROM meals WHERE slug = ${slug} LIMIT 1
@@ -230,8 +184,6 @@ export async function saveMeal(meal: MealInput) {
 
   try {
     if (usePostgres) {
-      await ensurePostgresSchema();
-
       await postgresClient!`
         INSERT INTO meals
           (slug, title, image, summary, instructions, creator, creator_email)
@@ -246,7 +198,7 @@ export async function saveMeal(meal: MealInput) {
             (slug, title, image, summary, instructions, creator, creator_email)
           VALUES
             (@slug, @title, @image, @summary, @instructions, @creator, @creator_email)
-        `
+        `,
       ).run(dbMeal);
     }
   } catch (error) {

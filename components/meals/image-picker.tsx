@@ -57,9 +57,7 @@ export default function ImagePicker({
       <div className={classes.controls}>
         <div className={classes.preview}>
           {!pickedImage && !externalPreview && <p>No image picked yet.</p>}
-          {pickedImage && (
-            <img src={pickedImage} alt="The image selected by the user." />
-          )}
+          {pickedImage && <img src={pickedImage} alt="The image selected by the user." />}
           {!pickedImage && externalPreview && (
             <img src={externalPreview} alt="The applied generated image." />
           )}

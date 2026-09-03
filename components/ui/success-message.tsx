@@ -21,8 +21,8 @@ export default function SuccessMessage({ message }) {
       <div className={classes.content}>
         <span className={classes.icon}>✓</span>
         <p>{message}</p>
-        <button 
-          className={classes.closeButton} 
+        <button
+          className={classes.closeButton}
           onClick={() => setIsVisible(false)}
           aria-label="Close message"
         >

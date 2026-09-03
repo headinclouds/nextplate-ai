@@ -3,26 +3,21 @@ const path = require('node:path');
 const createPostgresClient = require('postgres');
 
 const postgresUrl =
-   process.env.POSTGRES_URL ||
-   process.env.STORAGE_POSTGRES_URL ||
-   process.env.STORAGE_URL ||
-   '';
+  process.env.POSTGRES_URL || process.env.STORAGE_POSTGRES_URL || process.env.STORAGE_URL || '';
 
 const usePostgres = Boolean(postgresUrl);
 const dbPath = process.env.SQLITE_PATH || 'meals.db';
-const postgresClient = usePostgres
-   ? createPostgresClient(postgresUrl, { ssl: 'require' })
-   : null;
+const postgresClient = usePostgres ? createPostgresClient(postgresUrl, { ssl: 'require' }) : null;
 
 function getSqliteDb() {
-   const dbDir = path.dirname(dbPath);
+  const dbDir = path.dirname(dbPath);
 
-   if (dbDir && dbDir !== '.') {
-      fs.mkdirSync(dbDir, { recursive: true });
-   }
+  if (dbDir && dbDir !== '.') {
+    fs.mkdirSync(dbDir, { recursive: true });
+  }
 
-   const sqlite = require('better-sqlite3');
-   return sqlite(dbPath);
+  const sqlite = require('better-sqlite3');
+  return sqlite(dbPath);
 }
 
 const dummyMeals = [
@@ -52,8 +47,7 @@ const dummyMeals = [
     title: 'Spicy Curry',
     slug: 'spicy-curry',
     image: '/images/curry.jpg',
-    summary:
-      'A rich and spicy curry, infused with exotic spices and creamy coconut milk.',
+    summary: 'A rich and spicy curry, infused with exotic spices and creamy coconut milk.',
     instructions: `
       1. Chop vegetables:
          Cut your choice of vegetables into bite-sized pieces.
@@ -77,8 +71,7 @@ const dummyMeals = [
     title: 'Homemade Dumplings',
     slug: 'homemade-dumplings',
     image: '/images/dumplings.jpg',
-    summary:
-      'Tender dumplings filled with savory meat and vegetables, steamed to perfection.',
+    summary: 'Tender dumplings filled with savory meat and vegetables, steamed to perfection.',
     instructions: `
       1. Prepare the filling:
          Mix minced meat, shredded vegetables, and spices.
@@ -99,8 +92,7 @@ const dummyMeals = [
     title: 'Classic Mac n Cheese',
     slug: 'classic-mac-n-cheese',
     image: '/images/macncheese.jpg',
-    summary:
-      "Creamy and cheesy macaroni, a comforting classic that's always a crowd-pleaser.",
+    summary: "Creamy and cheesy macaroni, a comforting classic that's always a crowd-pleaser.",
     instructions: `
       1. Cook the macaroni:
          Boil macaroni according to package instructions until al dente.
@@ -124,8 +116,7 @@ const dummyMeals = [
     title: 'Authentic Pizza',
     slug: 'authentic-pizza',
     image: '/images/pizza.jpg',
-    summary:
-      'Hand-tossed pizza with a tangy tomato sauce, fresh toppings, and melted cheese.',
+    summary: 'Hand-tossed pizza with a tangy tomato sauce, fresh toppings, and melted cheese.',
     instructions: `
       1. Prepare the dough:
          Knead pizza dough and let it rise until doubled in size.
@@ -146,8 +137,7 @@ const dummyMeals = [
     title: 'Wiener Schnitzel',
     slug: 'wiener-schnitzel',
     image: '/images/schnitzel.jpg',
-    summary:
-      'Crispy, golden-brown breaded veal cutlet, a classic Austrian dish.',
+    summary: 'Crispy, golden-brown breaded veal cutlet, a classic Austrian dish.',
     instructions: `
       1. Prepare the veal:
          Pound veal cutlets to an even thickness.
@@ -189,11 +179,11 @@ const dummyMeals = [
 ];
 
 async function createPostgresSchema() {
-   if (!postgresClient) {
-      throw new Error('POSTGRES_URL is required for Postgres initialization.');
-   }
+  if (!postgresClient) {
+    throw new Error('POSTGRES_URL is required for Postgres initialization.');
+  }
 
-   await postgresClient`
+  await postgresClient`
       CREATE TABLE IF NOT EXISTS meals (
          id SERIAL PRIMARY KEY,
          slug TEXT NOT NULL UNIQUE,
@@ -206,31 +196,32 @@ async function createPostgresSchema() {
       )
    `;
 
-   await postgresClient`
+  await postgresClient`
       CREATE INDEX IF NOT EXISTS idx_meals_slug ON meals(slug)
    `;
 
-   await postgresClient`
+  await postgresClient`
       CREATE INDEX IF NOT EXISTS idx_meals_creator_email ON meals(creator_email)
    `;
 }
 
 async function seedPostgresData() {
-   if (!postgresClient) {
-      throw new Error('POSTGRES_URL is required for Postgres seeding.');
-   }
+  if (!postgresClient) {
+    throw new Error('POSTGRES_URL is required for Postgres seeding.');
+  }
 
-   for (const meal of dummyMeals) {
-      await postgresClient`
+  for (const meal of dummyMeals) {
+    await postgresClient`
          INSERT INTO meals (slug, title, image, summary, instructions, creator, creator_email)
          VALUES (${meal.slug}, ${meal.title}, ${meal.image}, ${meal.summary}, ${meal.instructions}, ${meal.creator}, ${meal.creator_email})
          ON CONFLICT (slug) DO NOTHING
       `;
-   }
+  }
 }
 
 function createSqliteSchema(db) {
-   db.prepare(`
+  db.prepare(
+    `
       CREATE TABLE IF NOT EXISTS meals (
          id INTEGER PRIMARY KEY AUTOINCREMENT,
          slug TEXT NOT NULL UNIQUE,
@@ -241,19 +232,24 @@ function createSqliteSchema(db) {
          creator TEXT NOT NULL,
          creator_email TEXT NOT NULL
       )
-   `).run();
+   `,
+  ).run();
 
-   db.prepare(`
+  db.prepare(
+    `
       CREATE INDEX IF NOT EXISTS idx_meals_slug ON meals(slug)
-   `).run();
+   `,
+  ).run();
 
-   db.prepare(`
+  db.prepare(
+    `
       CREATE INDEX IF NOT EXISTS idx_meals_creator_email ON meals(creator_email)
-   `).run();
+   `,
+  ).run();
 }
 
 function seedSqliteData(db) {
-   const stmt = db.prepare(`
+  const stmt = db.prepare(`
       INSERT OR IGNORE INTO meals (
          slug,
          title,
@@ -273,33 +269,33 @@ function seedSqliteData(db) {
       )
    `);
 
-   for (const meal of dummyMeals) {
-      stmt.run(meal);
-   }
+  for (const meal of dummyMeals) {
+    stmt.run(meal);
+  }
 }
 
 async function initData() {
-   try {
-      if (usePostgres) {
-         await createPostgresSchema();
-         await seedPostgresData();
-         console.log('Postgres tables, indexes, and seed data initialized successfully.');
-         return;
-      }
+  try {
+    if (usePostgres) {
+      await createPostgresSchema();
+      await seedPostgresData();
+      console.log('Postgres tables, indexes, and seed data initialized successfully.');
+      return;
+    }
 
-      const db = getSqliteDb();
-      createSqliteSchema(db);
-      seedSqliteData(db);
-      db.close();
-      console.log('SQLite tables, indexes, and seed data initialized successfully.');
-   } finally {
-      if (postgresClient) {
-         await postgresClient.end();
-      }
-   }
+    const db = getSqliteDb();
+    createSqliteSchema(db);
+    seedSqliteData(db);
+    db.close();
+    console.log('SQLite tables, indexes, and seed data initialized successfully.');
+  } finally {
+    if (postgresClient) {
+      await postgresClient.end();
+    }
+  }
 }
 
 initData().catch((error) => {
-   console.error('Failed to initialize database:', error);
-   process.exit(1);
+  console.error('Failed to initialize database:', error);
+  process.exit(1);
 });

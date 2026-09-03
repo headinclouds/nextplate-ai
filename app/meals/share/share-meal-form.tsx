@@ -1,11 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { improveRecipe } from '@/app/actions/improve-recipe';
 import { useFormState } from 'react-dom';
 
 import ImagePicker from '@/components/meals/image-picker';
 import LoadingOverlay from '@/components/ui/loading-overlay';
-import { generateMealImage, shareMeal } from '@/lib/actions';
+import { generateMealImage, shareMeal } from '@/app/actions/meals';
 import classes from './page.module.css';
 
 const initialState = {
@@ -20,18 +21,19 @@ const initialImageState = {
 
 export default function ShareMealForm() {
   const [state, formAction] = useFormState(shareMeal, initialState);
-  const [imageState, imageFormAction] = useFormState(
-    generateMealImage,
-    initialImageState
-  );
+  const [imageState, imageFormAction] = useFormState(generateMealImage, initialImageState);
+  const [recipe, setRecipe] = useState('');
   const [appliedImagePath, setAppliedImagePath] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSubmittingMeal, setIsSubmittingMeal] = useState(false);
   const [generateClientMessage, setGenerateClientMessage] = useState('');
   const [shareClientMessage, setShareClientMessage] = useState('');
 
-  const hasGeneratedCandidate =
-    !!imageState.imagePath && imageState.imagePath !== appliedImagePath;
+  const handleImprove = async () => {
+    const improvedText = await improveRecipe(recipe, 'detailed');
+    setRecipe(improvedText);
+  };
+  const hasGeneratedCandidate = !!imageState.imagePath && imageState.imagePath !== appliedImagePath;
 
   function handleApplyGeneratedImage() {
     setAppliedImagePath(imageState.imagePath);
@@ -52,9 +54,7 @@ export default function ShareMealForm() {
 
       if (!title || !summary) {
         event.preventDefault();
-        setGenerateClientMessage(
-          'Please fill in title and summary before generating an image.'
-        );
+        setGenerateClientMessage('Please fill in title and summary before generating an image.');
         setIsGenerating(false);
         setIsSubmittingMeal(false);
         return;
@@ -105,16 +105,6 @@ export default function ShareMealForm() {
 
   return (
     <form className={classes.form} action={formAction} onSubmit={handleFormSubmit}>
-      <div className={classes.row}>
-        <p>
-          <label htmlFor="name">Your name</label>
-          <input type="text" id="name" name="name" required />
-        </p>
-        <p>
-          <label htmlFor="email">Your email</label>
-          <input type="email" id="email" name="email" required />
-        </p>
-      </div>
       <p>
         <label htmlFor="title">Title</label>
         <input type="text" id="title" name="title" required />
@@ -125,13 +115,19 @@ export default function ShareMealForm() {
       </p>
       <p>
         <label htmlFor="instructions">Instructions</label>
-        <textarea id="instructions" name="instructions" rows={10} required></textarea>
+        <textarea
+          id="instructions"
+          name="instructions"
+          rows={10}
+          required
+          value={recipe}
+          onChange={(e) => setRecipe(e.target.value)}
+        ></textarea>
+        <button type="button" onClick={handleImprove}>
+          Improve with AI
+        </button>
       </p>
-      <input
-        type="hidden"
-        name="generatedImage"
-        value={appliedImagePath}
-      />
+      <input type="hidden" name="generatedImage" value={appliedImagePath} />
 
       <ImagePicker
         label="Your image"
@@ -196,10 +192,7 @@ export default function ShareMealForm() {
         </p>
       )}
       <p className={classes.actions}>
-        <button 
-          type="submit" 
-          disabled={isGenerating || isSubmittingMeal}
-        >
+        <button type="submit" disabled={isGenerating || isSubmittingMeal}>
           {isSubmittingMeal ? 'Submitting...' : 'Share Meal'}
         </button>
       </p>

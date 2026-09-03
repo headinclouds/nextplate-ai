@@ -25,7 +25,7 @@ if (isProduction && hasCloudinaryConfig) {
 async function uploadToCloudinary(
   buffer: Buffer,
   filename: string,
-  mimeType: string
+  mimeType: string,
 ): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
@@ -48,7 +48,7 @@ async function uploadToCloudinary(
         } else {
           reject(new Error('Cloudinary upload returned no URL.'));
         }
-      }
+      },
     );
 
     uploadStream.end(buffer);
@@ -63,7 +63,7 @@ async function uploadToLocal(buffer: Buffer, filename: string): Promise<string> 
   const localImagePath = path.join(imagesDir, filename);
 
   fs.mkdirSync(imagesDir, { recursive: true });
-  
+
   try {
     fs.writeFileSync(localImagePath, buffer);
     return `/images/${filename}`;
@@ -79,7 +79,7 @@ async function uploadToLocal(buffer: Buffer, filename: string): Promise<string> 
 export async function uploadImage(
   buffer: Buffer,
   filename: string,
-  mimeType: string
+  mimeType: string,
 ): Promise<string> {
   // In production, require Cloudinary so uploads persist and do not rely on local FS.
   if (isProduction) {
@@ -89,7 +89,7 @@ export async function uploadImage(
 
     return await uploadToCloudinary(buffer, filename, mimeType);
   }
-  
+
   // Fallback to local storage for development
   return await uploadToLocal(buffer, filename);
 }

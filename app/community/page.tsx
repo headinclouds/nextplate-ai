@@ -7,7 +7,8 @@ import classes from './page.module.css';
 
 export const metadata = {
   title: 'Our Community',
-  description: 'Join our vibrant community of food lovers. Share recipes, discover new dishes, and connect with fellow cooking enthusiasts.',
+  description:
+    'Join our vibrant community of food lovers. Share recipes, discover new dishes, and connect with fellow cooking enthusiasts.',
   openGraph: {
     title: 'Our Community | NextLevel Food',
     description: 'Join our vibrant community of food lovers and cooking enthusiasts.',
@@ -36,10 +37,7 @@ export default function CommunityPage() {
             <p>Find new friends & like-minded people</p>
           </li>
           <li>
-            <Image
-              src={eventsIcon}
-              alt="A crowd of people at a cooking event"
-            />
+            <Image src={eventsIcon} alt="A crowd of people at a cooking event" />
             <p>Participate in exclusive events</p>
           </li>
         </ul>

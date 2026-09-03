@@ -20,10 +20,10 @@ export default function Pagination({ currentPage, totalPages }) {
 
   const pages = [];
   const maxVisible = 5;
-  
+
   let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
   let endPage = Math.min(totalPages, startPage + maxVisible - 1);
-  
+
   if (endPage - startPage < maxVisible - 1) {
     startPage = Math.max(1, endPage - maxVisible + 1);
   }
@@ -35,7 +35,7 @@ export default function Pagination({ currentPage, totalPages }) {
   return (
     <nav className={classes.pagination} aria-label="Pagination">
       {currentPage > 1 && (
-        <button 
+        <button
           onClick={() => handlePageChange(currentPage - 1)}
           className={classes.link}
           disabled={isPending}
@@ -43,11 +43,11 @@ export default function Pagination({ currentPage, totalPages }) {
           {isPending && loadingPage === currentPage - 1 ? 'Loading...' : '← Previous'}
         </button>
       )}
-      
+
       <div className={classes.pages}>
         {startPage > 1 && (
           <>
-            <button 
+            <button
               onClick={() => handlePageChange(1)}
               className={classes.pageLink}
               disabled={isPending}
@@ -57,7 +57,7 @@ export default function Pagination({ currentPage, totalPages }) {
             {startPage > 2 && <span className={classes.ellipsis}>...</span>}
           </>
         )}
-        
+
         {pages.map((page) => (
           <button
             key={page}
@@ -69,11 +69,11 @@ export default function Pagination({ currentPage, totalPages }) {
             {isPending && loadingPage === page ? '...' : page}
           </button>
         ))}
-        
+
         {endPage < totalPages && (
           <>
             {endPage < totalPages - 1 && <span className={classes.ellipsis}>...</span>}
-            <button 
+            <button
               onClick={() => handlePageChange(totalPages)}
               className={classes.pageLink}
               disabled={isPending}
@@ -83,9 +83,9 @@ export default function Pagination({ currentPage, totalPages }) {
           </>
         )}
       </div>
-      
+
       {currentPage < totalPages && (
-        <button 
+        <button
           onClick={() => handlePageChange(currentPage + 1)}
           className={classes.link}
           disabled={isPending}

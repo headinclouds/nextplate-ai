@@ -8,7 +8,8 @@ import { Suspense } from 'react';
 
 export const metadata = {
   title: 'All Meals',
-  description: 'Browse delicious meals shared by our vibrant community of food lovers. Discover new recipes and cooking inspiration.',
+  description:
+    'Browse delicious meals shared by our vibrant community of food lovers. Discover new recipes and cooking inspiration.',
   openGraph: {
     title: 'All Meals | NextLevel Food',
     description: 'Browse delicious meals shared by our vibrant community of food lovers.',
@@ -16,35 +17,27 @@ export const metadata = {
 };
 
 async function Meals({ page }) {
-    const { meals, pagination } = await getMeals(page);
-    return (
-        <>
-            <MealsGrid meals={meals} />
-            <Pagination 
-                currentPage={pagination.currentPage} 
-                totalPages={pagination.totalPages} 
-            />
-        </>
-    );
+  const { meals, pagination } = await getMeals(page);
+  return (
+    <>
+      <MealsGrid meals={meals} />
+      <Pagination currentPage={pagination.currentPage} totalPages={pagination.totalPages} />
+    </>
+  );
 }
 
 export default async function MealsPage({ searchParams }) {
   const page = Number(searchParams?.page) || 1;
   const showSuccess = searchParams?.success === 'true';
-  
+
   return (
     <>
-      {showSuccess && (
-        <SuccessMessage message="🎉 Your meal has been shared successfully!" />
-      )}
+      {showSuccess && <SuccessMessage message="🎉 Your meal has been shared successfully!" />}
       <header className={classes.header}>
         <div>
           <div className={classes.hero}>
             <h1>Delicious meals, created by you</h1>
-            <p>
-              Choose your favorite recipe and cook it yourself. It is easy and
-              fun!
-            </p>
+            <p>Choose your favorite recipe and cook it yourself. It is easy and fun!</p>
             <p className={classes.cta}>
               <Link href="/meals/share">Share Your Favorite Recipe.</Link>
             </p>

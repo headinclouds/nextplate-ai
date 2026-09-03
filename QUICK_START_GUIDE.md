@@ -3,6 +3,7 @@
 ## 30-Minute Priority Tasks
 
 ### 1. Clean Database (5 min)
+
 ```bash
 cd /Users/olena/Downloads/05-onwards-foodies-starting-project
 rm meals.db
@@ -10,23 +11,28 @@ node initdb.js
 ```
 
 ### 2. Add 3-5 Quality Sample Meals (15 min)
+
 - Use the share form
 - Add professional descriptions
 - Use AI generation to showcase feature
 - Make them look realistic and appetizing
 
 ### 3. Update README Author Section (5 min)
+
 Edit [README.md](README.md) lines 285-290:
+
 ```markdown
 ## 👨‍💻 Author
 
 **Your Actual Name**
+
 - GitHub: [@yourgithubusername](https://github.com/yourgithubusername)
 - LinkedIn: [Your Name](https://linkedin.com/in/yourprofile)
 - Email: your.email@example.com
 ```
 
 ### 4. Test Production Mode Locally (5 min)
+
 ```bash
 # Build for production
 npm run build
@@ -47,6 +53,7 @@ npm start
 **Step-by-step:**
 
 1. **Push to GitHub** (if not already done)
+
    ```bash
    git init
    git add .
@@ -78,6 +85,7 @@ npm start
 ### 6. Test Production Site (15 min)
 
 Test every feature:
+
 - [ ] Homepage loads
 - [ ] Meals page shows all meals
 - [ ] Pagination works
@@ -99,6 +107,7 @@ Test every feature:
    - Meal detail page
 
 2. **Upload to GitHub:**
+
    ```bash
    mkdir docs
    mv screenshots/* docs/
@@ -110,23 +119,27 @@ Test every feature:
 3. **Add to README:**
    ```markdown
    ## 📸 Screenshots
-   
+
    ### Homepage
+
    ![Homepage](docs/homepage.png)
-   
+
    ### AI Image Generation
+
    ![AI Generation](docs/ai-generation.png)
-   
+
    ### Meal Details
+
    ![Meal Details](docs/meal-detail.png)
    ```
 
 ### 8. Final Polish (10 min)
 
 1. **Update README with live URL**
+
    ```markdown
    ## 🌐 Live Demo
-   
+
    Check out the live site: [nextlevel-food.vercel.app](https://nextlevel-food.vercel.app)
    ```
 
@@ -147,6 +160,7 @@ Test every feature:
 ### 9. LinkedIn Post (20 min)
 
 **Template:**
+
 ```
 🚀 Excited to share my latest project: NextLevel Food!
 
@@ -183,6 +197,7 @@ Open to feedback and opportunities! 💼
 ### 10. Add to Portfolio Site (30 min)
 
 Add project card with:
+
 - Project title
 - Screenshot/GIF
 - Tech stack badges
@@ -192,6 +207,7 @@ Add project card with:
 ### 11. Update Resume (20 min)
 
 **Projects Section:**
+
 ```
 NextLevel Food | Full-Stack Developer
 Next.js, React, Cloudinary, SQLite | [Live Demo] | [GitHub]
@@ -246,6 +262,7 @@ Next.js, React, Cloudinary, SQLite | [Live Demo] | [GitHub]
 ## 📋 Order of Operations (Recommended)
 
 ### Today (Essential):
+
 1. ✅ Clean database
 2. ✅ Add quality sample meals
 3. ✅ Update README author section
@@ -253,11 +270,13 @@ Next.js, React, Cloudinary, SQLite | [Live Demo] | [GitHub]
 5. ✅ Test production thoroughly
 
 ### Tomorrow (Important):
+
 6. ✅ Add screenshots to README
 7. ✅ LinkedIn post
 8. ✅ Add to portfolio
 
 ### This Week (Valuable):
+
 9. ✅ Update resume
 10. ✅ Prepare interview talking points
 11. ✅ Run Lighthouse audit, fix issues
@@ -265,6 +284,7 @@ Next.js, React, Cloudinary, SQLite | [Live Demo] | [GitHub]
 13. ✅ Clean up lint errors
 
 ### Future (Nice to Have):
+
 14. Add tests
 15. Add more features (search, auth, categories)
 16. Add TypeScript
@@ -275,6 +295,7 @@ Next.js, React, Cloudinary, SQLite | [Live Demo] | [GitHub]
 ## 🎯 Success Criteria
 
 **You're ready to apply for jobs when:**
+
 - [ ] Live site is deployed and working
 - [ ] README is complete with screenshots
 - [ ] GitHub repo is public and polished

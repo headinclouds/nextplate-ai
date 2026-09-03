@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import ReactMarkdown from 'react-markdown';
 
 import { getMeal } from '@/lib/meals';
 import classes from './page.module.css';
@@ -39,8 +40,6 @@ export default async function MealDetailsPage({ params }) {
     notFound();
   }
 
-  const instructions = meal.instructions.replace(/\n/g, '<br />');
-
   return (
     <>
       <header className={classes.header}>
@@ -61,10 +60,9 @@ export default async function MealDetailsPage({ params }) {
         </div>
       </header>
       <main>
-        <p
-          className={classes.instructions}
-          dangerouslySetInnerHTML={{ __html: instructions }}
-        ></p>
+        <div className={classes.instructions}>
+          <ReactMarkdown skipHtml>{meal.instructions}</ReactMarkdown>
+        </div>
       </main>
     </>
   );

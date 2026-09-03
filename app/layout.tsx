@@ -7,7 +7,8 @@ export const metadata = {
     template: '%s | NextLevel Food',
     default: 'NextLevel Food',
   },
-  description: 'Discover, create, and share incredible recipes from kitchens around the world. Join our community of food lovers.',
+  description:
+    'Discover, create, and share incredible recipes from kitchens around the world. Join our community of food lovers.',
   keywords: ['recipes', 'cooking', 'food', 'meals', 'community', 'AI image generation'],
   authors: [{ name: 'NextLevel Food' }],
   openGraph: {

@@ -9,6 +9,7 @@ A modern, full-stack food sharing platform built with Next.js 14, featuring AI-p
 ## 🌟 Key Features
 
 ### Core Functionality
+
 - **📸 Image Management**: Upload your own images or generate them with AI
 - **🤖 AI Image Generation**: Powered by Pollinations.ai with Apply/Retry workflow
 - **☁️ Cloud Storage**: Cloudinary integration with automatic optimization (WebP/AVIF, quality auto-tuning)
@@ -16,6 +17,7 @@ A modern, full-stack food sharing platform built with Next.js 14, featuring AI-p
 - **🔍 SEO Optimized**: Dynamic metadata, Open Graph, and Twitter Cards
 
 ### Performance & Security
+
 - **⚡ Rate Limiting**: 15 requests/hour per IP to prevent API abuse
 - **📊 Pagination**: Efficient data loading (12 meals per page)
 - **🔒 XSS Protection**: All user inputs sanitized
@@ -24,6 +26,7 @@ A modern, full-stack food sharing platform built with Next.js 14, featuring AI-p
 - **🎨 CSS Variables**: Maintainable theming system with 50+ variables
 
 ### User Experience
+
 - **✨ Loading States**: Visual feedback during all async operations
 - **✅ Success Messages**: Toast notifications with auto-dismiss
 - **❌ Error Handling**: Context-specific, actionable error messages
@@ -34,21 +37,25 @@ A modern, full-stack food sharing platform built with Next.js 14, featuring AI-p
 ## 🛠️ Tech Stack
 
 ### Frontend
+
 - **Next.js 14** - App Router with Server Components
 - **React 18** - Client Components for interactivity
 - **CSS Modules** - Scoped styling with CSS variables
 
 ### Backend
+
 - **Next.js Server Actions** - Type-safe server-side functions
 - **Vercel Postgres** - Managed production database on Vercel
 - **better-sqlite3** - Local fallback database for development
 - **Cloudinary** - Cloud image storage and optimization
 
 ### AI & APIs
+
 - **Pollinations.ai** - Free AI image generation
 - **Next.js Image** - Automatic image optimization
 
 ### Developer Tools
+
 - **ESLint** - Code quality and consistency
 - **Slugify** - URL-safe string generation
 - **XSS** - Input sanitization
@@ -56,48 +63,68 @@ A modern, full-stack food sharing platform built with Next.js 14, featuring AI-p
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Node.js 18+ installed
 - npm or yarn package manager
 
 ### Installation
 
 1. **Clone the repository**
+
 ```bash
 git clone <your-repo-url>
 cd foodies
 ```
 
 2. **Install dependencies**
+
 ```bash
 npm install
 ```
 
 3. **Set up environment variables**
+
 ```bash
 cp .env.example .env.local
 ```
 
 Edit `.env.local` and add your Cloudinary credentials (optional for development):
+
 ```env
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
 NODE_ENV=development
+BETTER_AUTH_SECRET=generate_a_secret_with_openssl_rand_-base64_32
+BETTER_AUTH_URL=http://localhost:3000
 # Optional for local Postgres workflow
 # POSTGRES_URL=postgres://...
 ```
 
-4. **Initialize the database**
+4. **Initialize the meals database**
+
 ```bash
-node initdb.js
+npm run db:init
 ```
 
-5. **Run the development server**
+This creates the meal tables, indexes, and sample meals. Run it against a new local or production database before starting the application.
+
+5. **Initialize the authentication database**
+
+```bash
+npm run auth:migrate
+```
+
+This creates Better Auth's `user`, `account`, `session`, and `verification` tables. Run it against the production Postgres database before deploying.
+
+6. **Run the development server**
+
 ```bash
 npm run dev
 ```
 
-6. **Open your browser**
+7. **Open your browser**
+
 ```
 http://localhost:3000
 ```
@@ -134,6 +161,7 @@ foodies/
 ## 🎯 Core Features Explained
 
 ### 1. AI Image Generation
+
 ```javascript
 // User flow:
 1. User enters meal title and summary
@@ -144,11 +172,13 @@ foodies/
 ```
 
 **Benefits:**
+
 - No wasted storage on unused previews
 - Fast iteration on AI-generated images
 - Fallback to manual upload if AI fails
 
 ### 2. Cloud Storage Strategy
+
 ```javascript
 // Automatic provider selection:
 - Development: Local filesystem (public/images/)
@@ -159,6 +189,7 @@ foodies/
 ```
 
 ### 3. Rate Limiting
+
 ```javascript
 // In-memory rate limiting:
 - 15 requests per hour per IP
@@ -168,6 +199,7 @@ foodies/
 ```
 
 ### 4. Database Optimization
+
 ```sql
 -- Indexes for fast queries:
 CREATE INDEX idx_meals_slug ON meals(slug);
@@ -179,6 +211,7 @@ CREATE INDEX idx_meals_creator_email ON meals(creator_email);
 ### Deploy to Vercel (Recommended)
 
 1. **Push to GitHub**
+
 ```bash
 git init
 git add .
@@ -188,6 +221,7 @@ git push -u origin main
 ```
 
 2. **Deploy to Vercel**
+
 - Visit [vercel.com](https://vercel.com)
 - Import your GitHub repository
 - Add Vercel Postgres integration in your Vercel project (Storage tab)
@@ -202,11 +236,13 @@ git push -u origin main
 - Deploy!
 
 3. **Database Note**
+
 - With Vercel Postgres enabled, meal creation and updates persist normally.
 - If `POSTGRES_URL` is not set, the app falls back to local SQLite (good for local dev only).
 - SQLite on Vercel itself is not suitable for persistent writes.
 
 ### Alternative Deployment Options
+
 - **Netlify**: Similar to Vercel
 - **Railway**: Full-stack hosting with persistent storage
 - **AWS**: EC2 + S3 + RDS for full control
@@ -214,13 +250,13 @@ git push -u origin main
 
 ## 📊 Performance Metrics
 
-| Metric | Value |
-|--------|-------|
-| **Lighthouse Performance** | 95+ |
-| **First Contentful Paint** | < 1.2s |
-| **Time to Interactive** | < 2.5s |
-| **CSS Bundle Size** | ~42.5KB (15% smaller after optimization) |
-| **Image Optimization** | Auto WebP/AVIF, quality auto-tuning |
+| Metric                     | Value                                    |
+| -------------------------- | ---------------------------------------- |
+| **Lighthouse Performance** | 95+                                      |
+| **First Contentful Paint** | < 1.2s                                   |
+| **Time to Interactive**    | < 2.5s                                   |
+| **CSS Bundle Size**        | ~42.5KB (15% smaller after optimization) |
+| **Image Optimization**     | Auto WebP/AVIF, quality auto-tuning      |
 
 ## 🔐 Security Features
 
@@ -236,38 +272,46 @@ git push -u origin main
 ## 🎨 Customization
 
 ### Change Theme Colors
+
 Edit `app/globals.css`:
+
 ```css
 :root {
-  --color-primary: #f9572a;     /* Main brand color */
-  --color-secondary: #ff8a05;   /* Secondary color */
-  --color-accent: #ffc905;      /* Accent color */
+  --color-primary: #f9572a; /* Main brand color */
+  --color-secondary: #ff8a05; /* Secondary color */
+  --color-accent: #ffc905; /* Accent color */
 }
 ```
 
 ### Adjust Rate Limits
+
 Edit `lib/constants.ts`:
+
 ```javascript
 export const RATE_LIMIT_MAX_REQUESTS = 15;
 export const RATE_LIMIT_WINDOW_MS = 3600000; // 1 hour
 ```
 
 ### Change Pagination Size
+
 Edit `lib/constants.ts`:
+
 ```javascript
 export const DEFAULT_PAGE_SIZE = 12;
 ```
 
 ## 📝 Environment Variables
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `CLOUDINARY_CLOUD_NAME` | Your Cloudinary cloud name | Production only |
-| `CLOUDINARY_API_KEY` | Your Cloudinary API key | Production only |
-| `CLOUDINARY_API_SECRET` | Your Cloudinary API secret | Production only |
-| `POSTGRES_URL` | Vercel Postgres connection string | Required on Vercel for writable data |
-| `SQLITE_PATH` | Local SQLite path when no Postgres URL is set | Optional (local/dev) |
-| `NODE_ENV` | Environment (development/production) | Yes |
+| Variable                | Description                                                | Required                             |
+| ----------------------- | ---------------------------------------------------------- | ------------------------------------ |
+| `CLOUDINARY_CLOUD_NAME` | Your Cloudinary cloud name                                 | Production only                      |
+| `CLOUDINARY_API_KEY`    | Your Cloudinary API key                                    | Production only                      |
+| `CLOUDINARY_API_SECRET` | Your Cloudinary API secret                                 | Production only                      |
+| `POSTGRES_URL`          | Vercel Postgres connection string                          | Required on Vercel for writable data |
+| `SQLITE_PATH`           | Local SQLite path when no Postgres URL is set              | Optional (local/dev)                 |
+| `BETTER_AUTH_SECRET`    | Random secret used to sign and encrypt authentication data | Yes                                  |
+| `BETTER_AUTH_URL`       | Application URL used by authentication callbacks           | Yes                                  |
+| `NODE_ENV`              | Environment (development/production)                       | Yes                                  |
 
 ## 🤝 Contributing
 
@@ -286,6 +330,7 @@ This project is open source and available under the [MIT License](LICENSE).
 ## 👨‍💻 Author
 
 **Your Name**
+
 - GitHub: [@headinclouds](https://github.com/headinclouds)
 - LinkedIn: [olena-deordiieva](https://www.linkedin.com/in/olena-deordiieva/)
 
