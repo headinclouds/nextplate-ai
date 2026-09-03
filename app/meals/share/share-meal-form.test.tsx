@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useFormState } from 'react-dom';
 
+import { improveRecipe } from '@/app/actions/improve-recipe';
 import ShareMealForm from './share-meal-form';
 
 const mockShareFormAction = jest.fn();
@@ -10,6 +11,10 @@ const mockImageFormAction = jest.fn();
 jest.mock('@/app/actions/meals', () => ({
   shareMeal: jest.fn(),
   generateMealImage: jest.fn(),
+}));
+
+jest.mock('@/app/actions/improve-recipe', () => ({
+  improveRecipe: jest.fn(),
 }));
 
 jest.mock('@/components/ui/loading-overlay', () => ({
@@ -54,6 +59,7 @@ jest.mock('react-dom', () => {
 
 describe('ShareMealForm', () => {
   const useFormStateMock = useFormState as unknown as jest.Mock;
+  const improveRecipeMock = improveRecipe as jest.Mock;
   const originalConsoleError = console.error;
   let consoleErrorSpy: jest.SpyInstance;
 
@@ -131,6 +137,37 @@ describe('ShareMealForm', () => {
 
     expect(screen.getByRole('button', { name: 'Generating...' })).toBeInTheDocument();
   });
+
+  it('blocks recipe improvement when instructions are empty', async () => {
+    const user = userEvent.setup();
+    render(<ShareMealForm />);
+
+    await user.click(screen.getByRole('button', { name: 'Improve with AI' }));
+
+    expect(
+      screen.getByText('Please add instructions before improving them with AI.'),
+    ).toBeInTheDocument();
+    expect(improveRecipeMock).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ['Improve with AI', 'detailed'],
+    ['Add emojis', 'emojis'],
+    ['Fix grammar', 'fix'],
+  ])(
+    'improves instructions with %s without opening the image picker',
+    async (buttonName, action) => {
+      const user = userEvent.setup();
+      improveRecipeMock.mockResolvedValue('Improved instructions.');
+      render(<ShareMealForm />);
+
+      await user.type(screen.getByLabelText('Instructions'), 'Cook the meal.');
+      await user.click(screen.getByRole('button', { name: buttonName }));
+
+      expect(improveRecipeMock).toHaveBeenCalledWith('Cook the meal.', action);
+      expect(screen.getByTestId('image-input')).not.toHaveFocus();
+    },
+  );
 
   it('shows frontend message and blocks share when no uploaded/applied image exists', async () => {
     const user = userEvent.setup();

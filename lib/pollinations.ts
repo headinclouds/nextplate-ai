@@ -5,7 +5,8 @@ type RecipeImprovement = 'detailed' | 'emojis' | 'fix';
 const recipeImprovementInstructions: Record<RecipeImprovement, string> = {
   detailed:
     'Rewrite the recipe in more detail. Do not change ingredients, quantities, cooking times or temperatures.',
-  emojis: 'Add appropriate emojis to the recipe. Do not change its meaning or cooking instructions.',
+  emojis:
+    'Add appropriate emojis to the recipe. Do not change its meaning or cooking instructions.',
   fix: 'Fix grammar and spelling mistakes only. Do not change the meaning or any recipe data.',
 };
 

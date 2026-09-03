@@ -1,13 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { improveRecipe } from '@/app/actions/improve-recipe';
 import { useFormState } from 'react-dom';
 
 import ImagePicker from '@/components/meals/image-picker';
-import LoadingOverlay from '@/components/ui/loading-overlay';
 import { generateMealImage, shareMeal } from '@/app/actions/meals';
+import GeneratedImagePreview from './generated-image-preview';
 import classes from './page.module.css';
+import RecipeInstructions from './recipe-instructions';
 
 const initialState = {
   message: null,
@@ -28,11 +28,6 @@ export default function ShareMealForm() {
   const [isSubmittingMeal, setIsSubmittingMeal] = useState(false);
   const [generateClientMessage, setGenerateClientMessage] = useState('');
   const [shareClientMessage, setShareClientMessage] = useState('');
-
-  const handleImprove = async () => {
-    const improvedText = await improveRecipe(recipe, 'detailed');
-    setRecipe(improvedText);
-  };
   const hasGeneratedCandidate = !!imageState.imagePath && imageState.imagePath !== appliedImagePath;
 
   function handleApplyGeneratedImage() {
@@ -113,20 +108,7 @@ export default function ShareMealForm() {
         <label htmlFor="summary">Short Summary</label>
         <input type="text" id="summary" name="summary" required />
       </p>
-      <p>
-        <label htmlFor="instructions">Instructions</label>
-        <textarea
-          id="instructions"
-          name="instructions"
-          rows={10}
-          required
-          value={recipe}
-          onChange={(e) => setRecipe(e.target.value)}
-        ></textarea>
-        <button type="button" onClick={handleImprove}>
-          Improve with AI
-        </button>
-      </p>
+      <RecipeInstructions value={recipe} onChange={setRecipe} />
       <input type="hidden" name="generatedImage" value={appliedImagePath} />
 
       <ImagePicker
@@ -159,26 +141,12 @@ export default function ShareMealForm() {
       )}
 
       {hasGeneratedCandidate && (
-        <div className={classes.generatedImagePreview}>
-          <div className={classes.generatedImageFrame}>
-            <img src={imageState.imagePath} alt="AI generated meal" />
-            {isGenerating && <LoadingOverlay message="Generating image..." />}
-          </div>
-          <p className={classes.generatedActions}>
-            <button type="button" onClick={handleApplyGeneratedImage}>
-              Apply
-            </button>
-            <button
-              type="submit"
-              data-intent="generate"
-              formAction={imageFormAction}
-              formNoValidate
-              disabled={isGenerating}
-            >
-              {isGenerating ? 'Generating...' : 'Retry'}
-            </button>
-          </p>
-        </div>
+        <GeneratedImagePreview
+          imagePath={imageState.imagePath}
+          isGenerating={isGenerating}
+          imageFormAction={imageFormAction}
+          onApply={handleApplyGeneratedImage}
+        />
       )}
 
       {state.message && (

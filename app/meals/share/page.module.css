@@ -67,6 +67,35 @@
   width: 100%;
 }
 
+.improveActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
+}
+
+.improveActions button {
+  border: 1px solid #f99f2a;
+  min-width: 8rem;
+  padding: 0.5rem 0.75rem;
+  background: transparent;
+  color: #ffd08a;
+  border-radius: 2px;
+  cursor: pointer;
+  font: inherit;
+}
+
+.improveActions button:hover,
+.improveActions button:focus {
+  background: #f99f2a;
+  color: #1c2027;
+}
+
+.improveActions button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
 .actions {
   text-align: right;
 }
