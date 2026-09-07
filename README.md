@@ -10,8 +10,11 @@ A modern, full-stack food sharing platform built with Next.js 14, featuring AI-p
 
 ### Core Functionality
 
+- **🔐 Authentication**: Email/password sign-up, login, and logout powered by Better Auth
 - **📸 Image Management**: Upload your own images or generate them with AI
 - **🤖 AI Image Generation**: Powered by Pollinations.ai with Apply/Retry workflow
+- **✍️ AI Recipe Assistance**: Improve, add emojis to, or fix grammar in instructions with one click
+- **📝 Markdown Instructions**: Meal instructions render as formatted Markdown (bold, lists, etc.)
 - **☁️ Cloud Storage**: Cloudinary integration with automatic optimization (WebP/AVIF, quality auto-tuning)
 - **📄 Server-Side Rendering**: Fast initial page loads and SEO-friendly
 - **🔍 SEO Optimized**: Dynamic metadata, Open Graph, and Twitter Cards
@@ -44,19 +47,21 @@ A modern, full-stack food sharing platform built with Next.js 14, featuring AI-p
 
 ### Backend
 
-- **Next.js Server Actions** - Type-safe server-side functions
-- **Vercel Postgres** - Managed production database on Vercel
-- **better-sqlite3** - Local fallback database for development
+- **Next.js Server Actions** - Type-safe server-side functions (`app/actions/`)
+- **Better Auth** - Email/password authentication, sessions, and cookie handling
+- **PostgreSQL** - Required database, locally via Docker and in production via Vercel Postgres/Neon
 - **Cloudinary** - Cloud image storage and optimization
 
 ### AI & APIs
 
-- **Pollinations.ai** - Free AI image generation
+- **Pollinations.ai** - Free AI image generation and recipe text improvement
+- **react-markdown** - Safe Markdown rendering for meal instructions
 - **Next.js Image** - Automatic image optimization
 
 ### Developer Tools
 
-- **ESLint** - Code quality and consistency
+- **ESLint** + **Prettier** - Code quality, linting, and formatting
+- **Jest** + **Testing Library** - Unit and component tests
 - **Slugify** - URL-safe string generation
 - **XSS** - Input sanitization
 
@@ -66,6 +71,7 @@ A modern, full-stack food sharing platform built with Next.js 14, featuring AI-p
 
 - Node.js 18+ installed
 - npm or yarn package manager
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (for local PostgreSQL)
 
 ### Installation
 
@@ -82,7 +88,15 @@ cd foodies
 npm install
 ```
 
-3. **Set up environment variables**
+3. **Start local PostgreSQL**
+
+```bash
+docker compose up -d
+```
+
+This starts a `postgres:16-alpine` container (see [compose.yaml](compose.yaml)) on `localhost:5432` with a persistent volume.
+
+4. **Set up environment variables**
 
 ```bash
 cp .env.example .env.local
@@ -97,11 +111,12 @@ CLOUDINARY_API_SECRET=your_api_secret
 NODE_ENV=development
 BETTER_AUTH_SECRET=generate_a_secret_with_openssl_rand_-base64_32
 BETTER_AUTH_URL=http://localhost:3000
-# Optional for local Postgres workflow
-# POSTGRES_URL=postgres://...
+POSTGRES_URL=postgres://foodies:foodies@localhost:5432/foodies
 ```
 
-4. **Initialize the meals database**
+`POSTGRES_URL` is required — the app will not start without it.
+
+5. **Initialize the meals database**
 
 ```bash
 npm run db:init
@@ -109,7 +124,7 @@ npm run db:init
 
 This creates the meal tables, indexes, and sample meals. Run it against a new local or production database before starting the application.
 
-5. **Initialize the authentication database**
+6. **Initialize the authentication database**
 
 ```bash
 npm run auth:migrate
@@ -117,13 +132,13 @@ npm run auth:migrate
 
 This creates Better Auth's `user`, `account`, `session`, and `verification` tables. Run it against the production Postgres database before deploying.
 
-6. **Run the development server**
+7. **Run the development server**
 
 ```bash
 npm run dev
 ```
 
-7. **Open your browser**
+8. **Open your browser**
 
 ```
 http://localhost:3000
@@ -134,29 +149,49 @@ http://localhost:3000
 ```
 foodies/
 ├── app/                      # Next.js App Router
-│   ├── layout.tsx           # Root layout with metadata
-│   ├── page.tsx             # Homepage
-│   ├── globals.css          # Global styles & CSS variables
-│   ├── meals/               # Meals feature
-│   │   ├── page.tsx         # Meals list with pagination
-│   │   ├── [slug]/          # Dynamic meal detail pages
-│   │   └── share/           # Share meal form
-│   └── community/           # Community page
-├── components/              # React components
-│   ├── meals/              # Meal-specific components
-│   ├── main-header/        # Navigation header
-│   ├── footer/             # Site footer
-│   └── ui/                 # Reusable UI components
-├── lib/                     # Server-side utilities
-│   ├── actions.ts          # Server Actions (form handling)
-│   ├── meals.ts            # Database operations
-│   ├── storage.ts          # Cloud storage abstraction
-│   ├── rate-limit.ts       # Rate limiting logic
-│   └── constants.ts        # Configuration constants
-├── public/                  # Static assets
-│   └── images/             # Local image storage (dev)
-└── initdb.js               # Database initialization script
+│   ├── actions/              # Server Actions (auth, meals, AI recipe help)
+│   ├── api/auth/[...all]/    # Better Auth request handler
+│   ├── login/                # Login page + form
+│   ├── register/             # Registration page + form
+│   ├── layout.tsx            # Root layout with metadata
+│   ├── page.tsx              # Homepage
+│   ├── globals.css           # Global styles & CSS variables
+│   ├── meals/                # Meals feature
+│   │   ├── page.tsx          # Meals list with pagination
+│   │   ├── [slug]/           # Dynamic meal detail pages (Markdown instructions)
+│   │   └── share/            # Share meal form (auth-protected)
+│   └── community/            # Community page
+├── components/               # React components
+│   ├── meals/                # Meal-specific components
+│   ├── main-header/          # Navigation header (session-aware)
+│   ├── footer/               # Site footer
+│   └── ui/                   # Reusable UI components
+├── lib/                      # Server-side utilities
+│   ├── auth.ts               # Better Auth configuration + session helper
+│   ├── meals.ts              # Meal database operations (Postgres)
+│   ├── meal-validation.ts    # Meal form field validation
+│   ├── meal-images.ts        # Generated image persistence
+│   ├── pollinations.ts       # AI image + recipe text requests
+│   ├── storage.ts            # Cloud storage abstraction
+│   ├── rate-limit.ts         # Rate limiting logic
+│   └── constants.ts          # Configuration constants
+├── public/                   # Static assets
+│   └── images/               # Local image storage (dev)
+├── compose.yaml              # Local PostgreSQL container
+└── initdb.js                 # Meal database initialization script
 ```
+
+## 🔐 Authentication
+
+Authentication is handled by [Better Auth](https://www.better-auth.com/) with email/password sign-in:
+
+- **Sign up** (`/register`) creates a user via `auth.api.signUpEmail` and redirects to `/login?registered=true` (no auto sign-in).
+- **Log in** (`/login`) verifies credentials via `auth.api.signInEmail` and sets a secure session cookie.
+- **Log out** revokes the session via `auth.api.signOut`.
+- **Protected routes**: `/meals/share` and the `shareMeal` Server Action both check the session server-side; unauthenticated visitors are redirected to `/login`.
+- **Session-aware navigation**: the header shows Log In/Sign Up or Log out depending on session state.
+
+Better Auth stores its own `user`, `account`, `session`, and `verification` tables, created by `npm run auth:migrate` — separate from the app's `meals` table, which is created by `npm run db:init`.
 
 ## 🎯 Core Features Explained
 
@@ -177,7 +212,17 @@ foodies/
 - Fast iteration on AI-generated images
 - Fallback to manual upload if AI fails
 
-### 2. Cloud Storage Strategy
+### 2. AI Recipe Assistance
+
+Three buttons next to the Instructions field call the same `improveRecipe` Server Action with different modes:
+
+- **Improve with AI** — expands the recipe with more detail
+- **Add emojis** — adds appropriate cooking emojis
+- **Fix grammar** — corrects grammar/spelling without changing meaning
+
+All three are disabled while a request is in flight and blocked client-side if the field is empty. Instructions are rendered as Markdown (via `react-markdown`) on the meal detail page, so AI-generated formatting like `**bold**` displays correctly.
+
+### 3. Cloud Storage Strategy
 
 ```javascript
 // Automatic provider selection:
@@ -188,7 +233,7 @@ foodies/
   - 1200x1200 size limit
 ```
 
-### 3. Rate Limiting
+### 4. Rate Limiting
 
 ```javascript
 // In-memory rate limiting:
@@ -198,7 +243,7 @@ foodies/
 - Graceful error messages with reset time
 ```
 
-### 4. Database Optimization
+### 5. Database Optimization
 
 ```sql
 -- Indexes for fast queries:
@@ -230,16 +275,19 @@ git push -u origin main
   CLOUDINARY_CLOUD_NAME
   CLOUDINARY_API_KEY
   CLOUDINARY_API_SECRET
-  NODE_ENV=production
+  POLLINATIONS_API_KEY
   POSTGRES_URL
+  BETTER_AUTH_SECRET
+  BETTER_AUTH_URL
+  NODE_ENV=production
   ```
 - Deploy!
+- Run `npm run db:init` and `npm run auth:migrate` against the production `POSTGRES_URL` (see Installation steps 5–6).
 
 3. **Database Note**
 
 - With Vercel Postgres enabled, meal creation and updates persist normally.
-- If `POSTGRES_URL` is not set, the app falls back to local SQLite (good for local dev only).
-- SQLite on Vercel itself is not suitable for persistent writes.
+- `POSTGRES_URL` is required; the app will not start without it.
 
 ### Alternative Deployment Options
 
@@ -302,16 +350,16 @@ export const DEFAULT_PAGE_SIZE = 12;
 
 ## 📝 Environment Variables
 
-| Variable                | Description                                                | Required                             |
-| ----------------------- | ---------------------------------------------------------- | ------------------------------------ |
-| `CLOUDINARY_CLOUD_NAME` | Your Cloudinary cloud name                                 | Production only                      |
-| `CLOUDINARY_API_KEY`    | Your Cloudinary API key                                    | Production only                      |
-| `CLOUDINARY_API_SECRET` | Your Cloudinary API secret                                 | Production only                      |
-| `POSTGRES_URL`          | Vercel Postgres connection string                          | Required on Vercel for writable data |
-| `SQLITE_PATH`           | Local SQLite path when no Postgres URL is set              | Optional (local/dev)                 |
-| `BETTER_AUTH_SECRET`    | Random secret used to sign and encrypt authentication data | Yes                                  |
-| `BETTER_AUTH_URL`       | Application URL used by authentication callbacks           | Yes                                  |
-| `NODE_ENV`              | Environment (development/production)                       | Yes                                  |
+| Variable                | Description                                                          | Required        |
+| ----------------------- | -------------------------------------------------------------------- | --------------- |
+| `CLOUDINARY_CLOUD_NAME` | Your Cloudinary cloud name                                           | Production only |
+| `CLOUDINARY_API_KEY`    | Your Cloudinary API key                                              | Production only |
+| `CLOUDINARY_API_SECRET` | Your Cloudinary API secret                                           | Production only |
+| `POLLINATIONS_API_KEY`  | API key for AI image generation and recipe text improvement          | Yes             |
+| `POSTGRES_URL`          | Postgres connection string                                           | Yes             |
+| `BETTER_AUTH_SECRET`    | Random secret used to sign and encrypt authentication data           | Yes             |
+| `BETTER_AUTH_URL`       | Application URL used by authentication callbacks (no trailing slash) | Yes             |
+| `NODE_ENV`              | Environment (development/production)                                 | Yes             |
 
 ## 🤝 Contributing
 

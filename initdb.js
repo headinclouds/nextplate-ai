@@ -1,24 +1,17 @@
-const fs = require('node:fs');
-const path = require('node:path');
 const createPostgresClient = require('postgres');
 
 const postgresUrl =
   process.env.POSTGRES_URL || process.env.STORAGE_POSTGRES_URL || process.env.STORAGE_URL || '';
 
-const usePostgres = Boolean(postgresUrl);
-const dbPath = process.env.SQLITE_PATH || 'meals.db';
-const postgresClient = usePostgres ? createPostgresClient(postgresUrl, { ssl: 'require' }) : null;
-
-function getSqliteDb() {
-  const dbDir = path.dirname(dbPath);
-
-  if (dbDir && dbDir !== '.') {
-    fs.mkdirSync(dbDir, { recursive: true });
-  }
-
-  const sqlite = require('better-sqlite3');
-  return sqlite(dbPath);
+if (!postgresUrl) {
+  throw new Error('POSTGRES_URL (or STORAGE_POSTGRES_URL/STORAGE_URL) is required.');
 }
+
+// Local Postgres (e.g. Docker) has no SSL listener; hosted providers require it.
+const isLocalPostgres = ['localhost', '127.0.0.1'].includes(new URL(postgresUrl).hostname);
+const postgresClient = createPostgresClient(postgresUrl, {
+  ssl: isLocalPostgres ? false : 'require',
+});
 
 const dummyMeals = [
   {
@@ -179,10 +172,6 @@ const dummyMeals = [
 ];
 
 async function createPostgresSchema() {
-  if (!postgresClient) {
-    throw new Error('POSTGRES_URL is required for Postgres initialization.');
-  }
-
   await postgresClient`
       CREATE TABLE IF NOT EXISTS meals (
          id SERIAL PRIMARY KEY,
@@ -206,10 +195,6 @@ async function createPostgresSchema() {
 }
 
 async function seedPostgresData() {
-  if (!postgresClient) {
-    throw new Error('POSTGRES_URL is required for Postgres seeding.');
-  }
-
   for (const meal of dummyMeals) {
     await postgresClient`
          INSERT INTO meals (slug, title, image, summary, instructions, creator, creator_email)
@@ -219,79 +204,13 @@ async function seedPostgresData() {
   }
 }
 
-function createSqliteSchema(db) {
-  db.prepare(
-    `
-      CREATE TABLE IF NOT EXISTS meals (
-         id INTEGER PRIMARY KEY AUTOINCREMENT,
-         slug TEXT NOT NULL UNIQUE,
-         title TEXT NOT NULL,
-         image TEXT NOT NULL,
-         summary TEXT NOT NULL,
-         instructions TEXT NOT NULL,
-         creator TEXT NOT NULL,
-         creator_email TEXT NOT NULL
-      )
-   `,
-  ).run();
-
-  db.prepare(
-    `
-      CREATE INDEX IF NOT EXISTS idx_meals_slug ON meals(slug)
-   `,
-  ).run();
-
-  db.prepare(
-    `
-      CREATE INDEX IF NOT EXISTS idx_meals_creator_email ON meals(creator_email)
-   `,
-  ).run();
-}
-
-function seedSqliteData(db) {
-  const stmt = db.prepare(`
-      INSERT OR IGNORE INTO meals (
-         slug,
-         title,
-         image,
-         summary,
-         instructions,
-         creator,
-         creator_email
-      ) VALUES (
-         @slug,
-         @title,
-         @image,
-         @summary,
-         @instructions,
-         @creator,
-         @creator_email
-      )
-   `);
-
-  for (const meal of dummyMeals) {
-    stmt.run(meal);
-  }
-}
-
 async function initData() {
   try {
-    if (usePostgres) {
-      await createPostgresSchema();
-      await seedPostgresData();
-      console.log('Postgres tables, indexes, and seed data initialized successfully.');
-      return;
-    }
-
-    const db = getSqliteDb();
-    createSqliteSchema(db);
-    seedSqliteData(db);
-    db.close();
-    console.log('SQLite tables, indexes, and seed data initialized successfully.');
+    await createPostgresSchema();
+    await seedPostgresData();
+    console.log('Postgres tables, indexes, and seed data initialized successfully.');
   } finally {
-    if (postgresClient) {
-      await postgresClient.end();
-    }
+    await postgresClient.end();
   }
 }
 

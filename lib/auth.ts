@@ -6,24 +6,26 @@ import { Pool } from 'pg';
 const postgresUrl =
   process.env.POSTGRES_URL || process.env.STORAGE_POSTGRES_URL || process.env.STORAGE_URL || '';
 
+if (!postgresUrl) {
+  throw new Error('POSTGRES_URL (or STORAGE_POSTGRES_URL/STORAGE_URL) is required.');
+}
+
+// Local Postgres (e.g. Docker) has no SSL listener; hosted providers require it.
+const isLocalPostgres = ['localhost', '127.0.0.1'].includes(new URL(postgresUrl).hostname);
+
 const globalForAuth = globalThis as typeof globalThis & {
-  authDatabase?: unknown;
+  authDatabase?: Pool;
 };
 
 function getAuthDatabase() {
   if (!globalForAuth.authDatabase) {
-    if (postgresUrl) {
-      globalForAuth.authDatabase = new Pool({
-        connectionString: postgresUrl,
-        ssl: { rejectUnauthorized: false },
-      });
-    } else {
-      const Database = require('better-sqlite3');
-      globalForAuth.authDatabase = new Database(process.env.SQLITE_PATH || 'meals.db');
-    }
+    globalForAuth.authDatabase = new Pool({
+      connectionString: postgresUrl,
+      ssl: isLocalPostgres ? false : { rejectUnauthorized: false },
+    });
   }
 
-  return globalForAuth.authDatabase as any;
+  return globalForAuth.authDatabase;
 }
 
 export const auth = betterAuth({
