@@ -44,6 +44,10 @@ jobs:
         run: npm run test:coverage
 
       - name: Build
+        env:
+          POSTGRES_URL: postgres://localhost:5432/nextplate_ai
+          BETTER_AUTH_URL: http://localhost:3000
+          BETTER_AUTH_SECRET: 0123456789abcdef0123456789abcdef
         run: npm run build
 
       - name: Upload coverage reports
