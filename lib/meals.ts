@@ -25,63 +25,50 @@ type MealInput = {
   creator_email: string;
 };
 
-const postgresUrl =
-  process.env.POSTGRES_URL || process.env.STORAGE_POSTGRES_URL || process.env.STORAGE_URL || '';
+let postgresClient: ReturnType<typeof createPostgresClient> | undefined;
 
-const usePostgres = Boolean(postgresUrl);
-const dbPath = process.env.SQLITE_PATH || 'meals.db';
-const postgresClient = usePostgres ? createPostgresClient(postgresUrl, { ssl: 'require' }) : null;
-
-let sqliteDb: any | null = null;
-
-function getSqliteDb() {
-  if (!sqliteDb) {
-    const sqlite = require('better-sqlite3');
-    sqliteDb = sqlite(dbPath);
+function getPostgresClient() {
+  if (postgresClient) {
+    return postgresClient;
   }
 
-  return sqliteDb;
+  const postgresUrl =
+    process.env.POSTGRES_URL || process.env.STORAGE_POSTGRES_URL || process.env.STORAGE_URL || '';
+
+  if (!postgresUrl) {
+    throw new Error('POSTGRES_URL (or STORAGE_POSTGRES_URL/STORAGE_URL) is required.');
+  }
+
+  // Local Postgres (e.g. Docker) has no SSL listener; hosted providers require it.
+  const isLocalPostgres = ['localhost', '127.0.0.1'].includes(new URL(postgresUrl).hostname);
+  postgresClient = createPostgresClient(postgresUrl, {
+    ssl: isLocalPostgres ? false : 'require',
+  });
+
+  return postgresClient;
 }
 
 export async function getMeals(page = 1, pageSize = 12) {
+  const postgresClient = getPostgresClient();
+
   try {
     const offset = (page - 1) * pageSize;
 
-    if (usePostgres) {
-      const mealsResult = await postgresClient!`
-        SELECT * FROM meals
-        ORDER BY id DESC
-        LIMIT ${pageSize}
-        OFFSET ${offset}
-      `;
+    const mealsResult = await postgresClient`
+      SELECT * FROM meals
+      ORDER BY id DESC
+      LIMIT ${pageSize}
+      OFFSET ${offset}
+    `;
 
-      const totalResult = await postgresClient!`
-        SELECT COUNT(*)::int AS count FROM meals
-      `;
+    const totalResult = await postgresClient`
+      SELECT COUNT(*)::int AS count FROM meals
+    `;
 
-      const total = Number(totalResult[0]?.count ?? 0);
-
-      return {
-        meals: mealsResult,
-        pagination: {
-          currentPage: page,
-          pageSize,
-          totalPages: Math.ceil(total / pageSize),
-          totalItems: total,
-        },
-      };
-    }
-
-    const db = getSqliteDb();
-    const meals = db
-      .prepare('SELECT * FROM meals ORDER BY id DESC LIMIT ? OFFSET ?')
-      .all(pageSize, offset);
-
-    const totalResult = db.prepare('SELECT COUNT(*) as count FROM meals').get();
-    const total = Number(totalResult.count || 0);
+    const total = Number(totalResult[0]?.count ?? 0);
 
     return {
-      meals,
+      meals: mealsResult,
       pagination: {
         currentPage: page,
         pageSize,
@@ -95,23 +82,22 @@ export async function getMeals(page = 1, pageSize = 12) {
 }
 
 export async function getMeal(slug) {
+  const postgresClient = getPostgresClient();
+
   try {
-    if (usePostgres) {
-      const result = await postgresClient!`
-        SELECT * FROM meals WHERE slug = ${slug} LIMIT 1
-      `;
+    const result = await postgresClient`
+      SELECT * FROM meals WHERE slug = ${slug} LIMIT 1
+    `;
 
-      return result[0];
-    }
-
-    const db = getSqliteDb();
-    return db.prepare('SELECT * FROM meals WHERE slug = ?').get(slug);
+    return result[0];
   } catch {
     throw new Error('Failed to fetch meal details.');
   }
 }
 
 export async function saveMeal(meal: MealInput) {
+  const postgresClient = getPostgresClient();
+
   // Sanitize all user inputs to prevent XSS and ensure they're strings
   const sanitizedTitle = String(xss(meal.title || ''));
   const sanitizedSummary = String(xss(meal.summary || ''));
@@ -124,23 +110,16 @@ export async function saveMeal(meal: MealInput) {
   let slug = baseSlug;
   let counter = 1;
 
-  if (usePostgres) {
-    while (true) {
-      const existing = await postgresClient!`
-        SELECT slug FROM meals WHERE slug = ${slug} LIMIT 1
-      `;
+  while (true) {
+    const existing = await postgresClient`
+      SELECT slug FROM meals WHERE slug = ${slug} LIMIT 1
+    `;
 
-      if (existing.length === 0) {
-        break;
-      }
+    if (existing.length === 0) {
+      break;
+    }
 
-      slug = `${baseSlug}-${counter++}`;
-    }
-  } else {
-    const db = getSqliteDb();
-    while (db.prepare('SELECT slug FROM meals WHERE slug = ?').get(slug)) {
-      slug = `${baseSlug}-${counter++}`;
-    }
+    slug = `${baseSlug}-${counter++}`;
   }
 
   let storedImagePath = meal.imagePath;
@@ -183,24 +162,12 @@ export async function saveMeal(meal: MealInput) {
   };
 
   try {
-    if (usePostgres) {
-      await postgresClient!`
-        INSERT INTO meals
-          (slug, title, image, summary, instructions, creator, creator_email)
-        VALUES
-          (${dbMeal.slug}, ${dbMeal.title}, ${dbMeal.image}, ${dbMeal.summary}, ${dbMeal.instructions}, ${dbMeal.creator}, ${dbMeal.creator_email})
-      `;
-    } else {
-      const db = getSqliteDb();
-      db.prepare(
-        `
-          INSERT INTO meals
-            (slug, title, image, summary, instructions, creator, creator_email)
-          VALUES
-            (@slug, @title, @image, @summary, @instructions, @creator, @creator_email)
-        `,
-      ).run(dbMeal);
-    }
+    await postgresClient`
+      INSERT INTO meals
+        (slug, title, image, summary, instructions, creator, creator_email)
+      VALUES
+        (${dbMeal.slug}, ${dbMeal.title}, ${dbMeal.image}, ${dbMeal.summary}, ${dbMeal.instructions}, ${dbMeal.creator}, ${dbMeal.creator_email})
+    `;
   } catch (error) {
     console.error('Database save error:', error);
     throw new Error('Unable to save meal to database. Please try again.');

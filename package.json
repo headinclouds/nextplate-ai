@@ -8,8 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "db:init": "node initdb.js",
-    "auth:migrate": "npx --yes auth@latest migrate",
+    "db:init": "node --env-file-if-exists=.env.local initdb.js",
+    "auth:migrate": "npx --yes auth@1.7.2 migrate",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
@@ -19,7 +19,6 @@
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "better-auth": "^1.7.2",
-    "better-sqlite3": "^12.11.1",
     "cloudinary": "^2.10.1",
     "next": "^14.2.35",
     "pg": "^8.23.0",
