@@ -25,20 +25,32 @@ type MealInput = {
   creator_email: string;
 };
 
-const postgresUrl =
-  process.env.POSTGRES_URL || process.env.STORAGE_POSTGRES_URL || process.env.STORAGE_URL || '';
+let postgresClient: ReturnType<typeof createPostgresClient> | undefined;
 
-if (!postgresUrl) {
-  throw new Error('POSTGRES_URL (or STORAGE_POSTGRES_URL/STORAGE_URL) is required.');
+function getPostgresClient() {
+  if (postgresClient) {
+    return postgresClient;
+  }
+
+  const postgresUrl =
+    process.env.POSTGRES_URL || process.env.STORAGE_POSTGRES_URL || process.env.STORAGE_URL || '';
+
+  if (!postgresUrl) {
+    throw new Error('POSTGRES_URL (or STORAGE_POSTGRES_URL/STORAGE_URL) is required.');
+  }
+
+  // Local Postgres (e.g. Docker) has no SSL listener; hosted providers require it.
+  const isLocalPostgres = ['localhost', '127.0.0.1'].includes(new URL(postgresUrl).hostname);
+  postgresClient = createPostgresClient(postgresUrl, {
+    ssl: isLocalPostgres ? false : 'require',
+  });
+
+  return postgresClient;
 }
 
-// Local Postgres (e.g. Docker) has no SSL listener; hosted providers require it.
-const isLocalPostgres = ['localhost', '127.0.0.1'].includes(new URL(postgresUrl).hostname);
-const postgresClient = createPostgresClient(postgresUrl, {
-  ssl: isLocalPostgres ? false : 'require',
-});
-
 export async function getMeals(page = 1, pageSize = 12) {
+  const postgresClient = getPostgresClient();
+
   try {
     const offset = (page - 1) * pageSize;
 
@@ -70,6 +82,8 @@ export async function getMeals(page = 1, pageSize = 12) {
 }
 
 export async function getMeal(slug) {
+  const postgresClient = getPostgresClient();
+
   try {
     const result = await postgresClient`
       SELECT * FROM meals WHERE slug = ${slug} LIMIT 1
@@ -82,6 +96,8 @@ export async function getMeal(slug) {
 }
 
 export async function saveMeal(meal: MealInput) {
+  const postgresClient = getPostgresClient();
+
   // Sanitize all user inputs to prevent XSS and ensure they're strings
   const sanitizedTitle = String(xss(meal.title || ''));
   const sanitizedSummary = String(xss(meal.summary || ''));
